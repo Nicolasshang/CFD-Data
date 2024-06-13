@@ -70,11 +70,11 @@ def setup_axes(
 
 
 class physicalProperties(Enum):
-    Ux = 0  # velocity (x-component)
-    Uy = 1  # velocity (y-component)
-    epsilon = 3  # rate of diffusion of turbulent kinetic energy
-    k = 4  # turbulent kinetic energy
-    p = 6  # pressure
+    Ux = 0          # velocity (x-component)
+    Uy = 1          # velocity (y-component)
+    epsilon = 3     # rate of diffusion of turbulent kinetic energy
+    k = 4           # turbulent kinetic energy
+    p = 6           # pressure
     arc_length = 8  # probably something related to postprocessing?
 
 

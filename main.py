@@ -1,38 +1,38 @@
-import matplotlib  # type: ignore
-import matplotlib as mpl  # type: ignore
-import matplotlib.pyplot as plt  # type: ignore
-import matplotlib.ticker as ticker  # type: ignore
-from matplotlib import axes  # type: ignore
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+from matplotlib import axes
 
-import numpy as np  # type: ignore
+import numpy as np
 
 import csv
-from typing import Optional, Union
 from enum import Enum
+import random
 
 
 def read_data(
-    file_name: str,
+    file_names: list[str],
     columns_to_read: list[int],
     start_index: float = 1,
     end_index: float = 1002,
 ) -> list[int]:
     data = []
+    for file_name in file_names:
+        with open(f"data/{file_name}", newline="") as csvfile:
+            file_reader = csv.reader(csvfile, delimiter=",")
+            reader_data = list(file_reader)
 
-    with open(f"data/{file_name}", newline="") as csvfile:
-        file_reader = csv.reader(csvfile, delimiter=",")
-        reader_data = list(file_reader)
+            for column in columns_to_read:
+                column_data = []
 
-        for column in columns_to_read:
-            column_data = []
-            for row in range(start_index, end_index):
-                column_data.append(reader_data[row][column])
-            data.append(column_data)
+                for row in range(start_index, end_index):
+                    column_data.append(reader_data[row][column])
+                data.append(column_data)
 
     return data
 
 
-def setup_axes(
+def set_up_axes(
     ax: axes,
     title: str,
     x_lower_limit: float = None,
@@ -70,45 +70,58 @@ def setup_axes(
 
 
 class physicalProperties(Enum):
-    Ux = 0          # velocity (x-component)
-    Uy = 1          # velocity (y-component)
-    epsilon = 3     # rate of diffusion of turbulent kinetic energy
-    k = 4           # turbulent kinetic energy
-    p = 6           # pressure
-    arc_length = 8  # probably something related to postprocessing?
+    x_velocity_U_5 = 0
 
 
 if __name__ == "__main__":
     figure, ax = plt.subplots()
-    # # compile a list of all milliseconds between 0s and 10s so that we can plot it against the properties
-    # time = np.linspace(
-    #     0, 1001, 1001
-    # )
 
-    time = read_data("data_U_5.csv", [9])[0]
+    all_file_names = ["U_5_data.csv"]
+    # Read from the 10th column from every csv file which corresponds to the y-coordinate of the cavity flow model
+    horizontal_axis = read_data(
+        file_names=[file_name for file_name in all_file_names], columns_to_read=[10]
+    )[0]
 
     selected_data = read_data(
-        "data_U_5.csv",
-        [property.value for property in physicalProperties],
+        file_names=[file_name for file_name in all_file_names],
+        columns_to_read=[property.value for property in physicalProperties],
     )
 
-    setup_axes(ax, "Lid-Driven Cavity Flow Data", 0, 1002)
+    set_up_axes(ax=ax, title="Lid-Driven Cavity Flow Data")
 
+    all_markers = [".", ",", "o", "^", "v", "s", "D"]
     all_line_styles = ["-", "--", "-.", ":"]
-    all_colors = ["b", "g", "r", "c", "m", "y", "k"]
+    all_colors = [
+        "#278AEB",
+        "#4B7096",
+        "#676B48",
+        "#6B4A48",
+        "#D6EB28",
+        "#EB3428",
+        "#90EB2F",
+    ]
+
+    # sample a list of random and unique indices from all_colors so no two plots have the same color
+    colors_random_indices = random.sample(range(0, len(all_colors)), len(all_colors))
 
     for i, property in enumerate(physicalProperties):
+        # markers_random_index = random.randrange(0, len(all_markers))
+        # line_styles_random_index = random.randrange(0, len(all_line_styles))
         ax.plot(
-            time,
+            horizontal_axis,
             selected_data[i],
-            f"{all_line_styles[np.random.randint(0, 3)]}{all_colors[np.random.randint(0, 6)]}",
+            (
+                # f"{all_markers[markers_random_index]}"
+                # f"{all_line_styles[line_styles_random_index]}"
+                f"{all_colors[colors_random_indices[i]]}"
+            ),
             lw=2,
             label=property.name,
         )
 
     ax.legend(frameon=True)
 
-    plt.xlabel("time")
-    plt.ylabel("value")
+    plt.xlabel("position")
+    plt.ylabel("magnitude of velocity")
 
-    plt.savefig("C:/Users/nicol/Desktop/CFD Data/image/plot.png")
+    plt.savefig("C:/Users/23shaang/Desktop/CFD-Data-main/image/plot.png")

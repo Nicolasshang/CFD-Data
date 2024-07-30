@@ -18,7 +18,7 @@ def read_data(
 ) -> list[int]:
     data = []
     for file_name in file_names:
-        with open(f"data/{file_name}", newline="") as csvfile:
+        with open(f"openfoam_data/{file_name}", newline="") as csvfile:
             file_reader = csv.reader(csvfile, delimiter=",")
             reader_data = list(file_reader)
 
